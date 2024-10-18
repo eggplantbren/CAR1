@@ -11,8 +11,8 @@ def prior_transform(us):
     """
     params = us.copy()
     params[0] = -100.0 + 200.0*us[0]
-    params[1] = us[1]
-    params[2] = np.exp(np.log(1.0) + np.log(1E4)*us[2])
+    params[1] = 10.0*us[1]
+    params[2] = np.exp(-10.0 + 20.0*us[2])
     return params
 
 def log_likelihood(params):
@@ -20,7 +20,7 @@ def log_likelihood(params):
     term = terms.RealTerm(a=sigma**2, c=1.0/tau)
     kernel = term
     gp = celerite2.GaussianProcess(kernel, mean=mu)
-    gp.compute(data[:,0], diag=data[:,2]**2, quiet=True)
+    gp.compute(data[:,0], yerr=data[:,2])
     return gp.log_likelihood(data[:,1])
 
 
