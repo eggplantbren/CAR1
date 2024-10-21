@@ -7,9 +7,12 @@ import numpy as np
 fits_file = fits.open("TotalDat.fits")
 totaldat = fits_file[1].data
 
-t = totaldat["MJD_g"][0, :]
-y = totaldat["MAG_g"][0, :]
-err = totaldat["MAG_ERR_g"][0, :]
+qso_number = 0
+band = "g"
+
+t = totaldat[f"MJD_{band}"][qso_number, :]
+y = totaldat[f"MAG_{band}"][qso_number, :]
+err = totaldat[f"MAG_ERR_{band}"][qso_number, :]
 
 keep = ~np.isnan(t)
 t, y, err = t[keep], y[keep], err[keep]
@@ -21,9 +24,9 @@ data[:,2] = err
 np.savetxt("data.txt", data)
 
 # Get reported tau values
-log_tau = totaldat["log_TAU_OBS_g"][0]
-lower = totaldat["log_TAU_OBS_g_ERR_L"][0]
-upper = totaldat["log_TAU_OBS_g_ERR_U"][0]
+log_tau = totaldat[f"log_TAU_OBS_{band}"][qso_number]
+lower = totaldat[f"log_TAU_OBS_{band}_ERR_L"][qso_number]
+upper = totaldat[f"log_TAU_OBS_{band}_ERR_U"][qso_number]
 
 print(log_tau, lower, upper)
 
