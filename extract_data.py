@@ -17,6 +17,10 @@ err = totaldat[f"MAG_ERR_{band}"][qso_number, :]
 keep = ~np.isnan(t)
 t, y, err = t[keep], y[keep], err[keep]
 
+## Center the data
+#w = 1.0/err
+#y -= np.sum(w*y)/np.sum(w)
+
 data = np.empty((len(t), 3))
 data[:,0] = t
 data[:,1] = y
