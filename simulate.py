@@ -21,7 +21,7 @@ data = np.empty((len(t), 3))
 data[:,0] = t
 data[:,1] = y
 data[:,2] = 0.1
-np.savetxt("simulated_data.txt", data)
+np.savetxt("data.txt", data)
 
 plt.errorbar(t, y, yerr=0.1, fmt="o")
 plt.show()
