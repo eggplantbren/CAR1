@@ -7,7 +7,7 @@ import numpy as np
 fits_file = fits.open("TotalDat.fits")
 totaldat = fits_file[1].data
 
-def get_data(qso_number, band):
+def get_data(qso_number, band, center_data=False):
     """
     Band must be 'g', 'r' or 'i'.
     """
@@ -20,8 +20,9 @@ def get_data(qso_number, band):
     t, y, err = t[keep], y[keep], err[keep]
 
     ## Center the data
-    #w = 1.0/err
-    #y -= np.sum(w*y)/np.sum(w)
+    if center_data:
+        w = 1.0/err
+        y -= np.sum(w*y)/np.sum(w)
 
     data = np.empty((len(t), 3))
     data[:,0] = t
