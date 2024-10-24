@@ -7,7 +7,7 @@ import numpy as np
 fits_file = fits.open("TotalDat.fits")
 totaldat = fits_file[1].data
 
-def get_data(qso_number, band, center_data=False):
+def get_data(qso_number, band, center_data=False, plot=True):
     """
     Band must be 'g', 'r' or 'i'.
     """
@@ -37,10 +37,19 @@ def get_data(qso_number, band, center_data=False):
 
     print(log_tau, lower, upper)
 
-    plt.errorbar(t, y, yerr=err, fmt=".")
-    plt.show()
+    if plot:
+        plt.errorbar(t, y, yerr=err, fmt=".")
+        plt.show()
 
     return data
+
+
+def get_all_data():
+    all_data = []
+    for i in range(190):
+        for band in ["g", "r", "i"]:
+            all_data.append(get_data(i, band, plot=False))
+    return all_data
 
 if __name__ == "__main__":
     get_data(0, "g")
