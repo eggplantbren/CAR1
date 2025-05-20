@@ -7,7 +7,8 @@ import numpy as np
 fits_file = fits.open("TotalDat.fits")
 totaldat = fits_file[1].data
 
-def get_data(qso_number, band, center_data=False, plot=True):
+def get_data(qso_number, band, center_data=False, plot=True,
+                deredshift=False):
     """
     Band must be 'g', 'r' or 'i'.
     """
@@ -15,6 +16,7 @@ def get_data(qso_number, band, center_data=False, plot=True):
     t = totaldat[f"MJD_{band}"][qso_number, :]
     y = totaldat[f"MAG_{band}"][qso_number, :]
     err = totaldat[f"MAG_ERR_{band}"][qso_number, :]
+    z = totaldat[f"Z"][qso_number]
 
     keep = ~np.isnan(t)
     t, y, err = t[keep], y[keep], err[keep]
@@ -24,18 +26,23 @@ def get_data(qso_number, band, center_data=False, plot=True):
         w = 1.0/err
         y -= np.sum(w*y)/np.sum(w)
 
+    # De-redshift by scaling time axis
+    if deredshift:
+        t = t/(1.0 + z)
+
     data = np.empty((len(t), 3))
     data[:,0] = t
     data[:,1] = y
     data[:,2] = err
     np.savetxt("data.txt", data)
 
+    print(z)
     # Get reported tau values
-    log_tau = totaldat[f"log_TAU_OBS_{band}"][qso_number]
-    lower = totaldat[f"log_TAU_OBS_{band}_ERR_L"][qso_number]
-    upper = totaldat[f"log_TAU_OBS_{band}_ERR_U"][qso_number]
+#    log_tau = totaldat[f"log_TAU_OBS_{band}"][qso_number]
+#    lower = totaldat[f"log_TAU_OBS_{band}_ERR_L"][qso_number]
+#    upper = totaldat[f"log_TAU_OBS_{band}_ERR_U"][qso_number]
 
-    print(log_tau, lower, upper)
+#    print(log_tau, lower, upper)
 
     if plot:
         plt.errorbar(t, y, yerr=err, fmt=".")
