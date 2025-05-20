@@ -7,7 +7,19 @@ import numpy as np
 fits_file = fits.open("TotalDat.fits")
 totaldat = fits_file[1].data
 
-def get_data(qso_number, band, center_data=False):
+def remove_outliers(data):
+    median = np.median(data[:,1])
+    q75, q25 = np.quantile(data[:,1], [0.75, 0.25])
+    iqr = q75 - q25
+    lower = median - 5*iqr
+    upper = median + 5*iqr
+    is_outlier = (data[:,1] + data[:,2] < lower) | (data[:,1] - data[:,2] > upper)
+    print("{n} outliers removed.".format(n=np.sum(is_outlier)))
+    return data[~is_outlier, :]
+
+
+
+def get_data(qso_number, band, center_data=False, sanitise=False):
     """
     Band must be 'g', 'r' or 'i'.
     """
@@ -28,6 +40,9 @@ def get_data(qso_number, band, center_data=False):
     data[:,0] = t
     data[:,1] = y
     data[:,2] = err
+    if sanitise:
+        data = remove_outliers(data)
+
     np.savetxt("data.txt", data)
 
     # Get reported tau values
@@ -35,15 +50,14 @@ def get_data(qso_number, band, center_data=False):
     lower = totaldat[f"log_TAU_OBS_{band}_ERR_L"][qso_number]
     upper = totaldat[f"log_TAU_OBS_{band}_ERR_U"][qso_number]
 
-    print(log_tau, lower, upper)
-
-    plt.errorbar(t, y, yerr=err, fmt=".")
+    plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt=".")
     plt.show()
 
     return data
 
 if __name__ == "__main__":
-    get_data(0, "g")
+    for i in range(63, 64):
+        get_data(i, "i", sanitise=True)
 
 
 fits_file.close()
