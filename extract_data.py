@@ -7,8 +7,18 @@ import numpy as np
 fits_file = fits.open("TotalDat.fits")
 totaldat = fits_file[1].data
 
+def remove_outliers(data):
+    median = np.median(data[:,1])
+    q75, q25 = np.quantile(data[:,1], [0.75, 0.25])
+    iqr = q75 - q25
+    lower = median - 5*iqr
+    upper = median + 5*iqr
+    is_outlier = (data[:,1] + data[:,2] < lower) | (data[:,1] - data[:,2] > upper)
+    print("{n} outliers removed.".format(n=np.sum(is_outlier)))
+    return data[~is_outlier, :]
+
 def get_data(qso_number, band, center_data=False, plot=True,
-                deredshift=False):
+                deredshift=False, sanitise=False):
     """
     Band must be 'g', 'r' or 'i'.
     """
@@ -34,25 +44,24 @@ def get_data(qso_number, band, center_data=False, plot=True,
     data[:,0] = t
     data[:,1] = y
     data[:,2] = err
+    if sanitise:
+        data = remove_outliers(data)
+
     np.savetxt("data.txt", data)
 
-    print(z)
     # Get reported tau values
 #    log_tau = totaldat[f"log_TAU_OBS_{band}"][qso_number]
 #    lower = totaldat[f"log_TAU_OBS_{band}_ERR_L"][qso_number]
 #    upper = totaldat[f"log_TAU_OBS_{band}_ERR_U"][qso_number]
 
-#    print(log_tau, lower, upper)
-
-    if plot:
-        plt.errorbar(t, y, yerr=err, fmt=".")
-        plt.show()
+    plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt=".")
+    plt.show()
 
     return data
 
 if __name__ == "__main__":
     for i in range(190):
-        get_data(i, "g")
+        get_data(i, "r", sanitise=True)
 
 
 fits_file.close()
