@@ -54,8 +54,9 @@ def get_data(qso_number, band, center_data=False, plot=True,
 #    lower = totaldat[f"log_TAU_OBS_{band}_ERR_L"][qso_number]
 #    upper = totaldat[f"log_TAU_OBS_{band}_ERR_U"][qso_number]
 
-    plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt=".")
-    plt.show()
+    if plot:
+        plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt=".")
+        plt.show()
 
     return data
 
