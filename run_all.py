@@ -5,8 +5,8 @@ import subprocess
 subprocess.run(["mkdir", "output"])
 
 for i in range(190):
-    for band in ["g", "r", "i"]:
-        get_data(i, band)
+    for band in ["g"]:
+        get_data(i, band, deredshift=True, sanitise=True, plot=False)
         subprocess.run("./main")
         dn4.postprocess(plot=False)
         subprocess.run(["mv", "posterior_sample.txt",
