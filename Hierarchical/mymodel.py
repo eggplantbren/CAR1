@@ -47,6 +47,25 @@ def prior_transform(us):
     return params
 
 
+def log_conditional_prior(params, samples):
+
+    # Just normal distributions
+    logp = 0.0
+
+    logp += -0.5*np.log(2.0*np.pi*params[1]) \
+                    - 0.5*(samples[:,0] - params[0])**2/params[1]**2
+
+    logp += -0.5*np.log(2.0*np.pi*params[3]) \
+                    - 0.5*(samples[:,1] - params[2])**2/params[3]**2
+
+    logp += -0.5*np.log(2.0*np.pi*params[5]) \
+                    - 0.5*(samples[:,2] - params[4])**2/params[5]**2
+
+    logp += -0.5*np.log(2.0*np.pi*params[7]) \
+                    - 0.5*(samples[:,3] - params[6])**2/params[7]**2
+
+    return logp
+
 def log_interim_prior(params, samples):
     """
     Evaluate the interim prior at one set of samples.
@@ -82,8 +101,17 @@ def log_interim_prior(params, samples):
 
 
 def log_likelihood(params):
-    return -num_params*0.5*np.log(2*np.pi*0.01**2)-0.5*np.sum((params/0.01)**2)
+    logl = 0.0
 
+    for samples in all_samples:
+
+        # The expectation inside the product sign
+        loge = logmeanexp(log_conditional_prior(params, samples) -
+                          log_interim_prior(params, samples))
+
+        logl = logl + loge
+
+    return logl
 
 def both(us):
     return log_likelihood(prior_transform(us))
