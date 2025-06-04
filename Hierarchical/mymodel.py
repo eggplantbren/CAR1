@@ -46,6 +46,41 @@ def prior_transform(us):
 
     return params
 
+
+def log_interim_prior(params, samples):
+    """
+    Evaluate the interim prior at one set of samples.
+    This must match the prior in
+    ../mymodel.py. REMEMBERING that we are using log10 here for some
+    columns. NOTE: currently un-normalised, so marginal likelihood
+    estimate not right.
+    """
+    logp = 0.0
+
+    if np.any((samples[:,0] < 0.0) | (samples[:,0] > 40.0)):
+        return -np.Inf
+    else:
+        logp += 0.0
+
+    if np.any((samples[:,1] < -3.0) | (samples[:,1] > 1.0)):
+        return -np.Inf
+    else:
+        logp += 0.0
+
+
+    if np.any((samples[:,2] < 0.0) | (samples[:,2] > 6.0)):
+        return -np.Inf
+    else:
+        logp += 0.0
+
+    if np.any((samples[:,3] < -3.0) | (samples[:,3] > 0.0)):
+        return -np.Inf
+    else:
+        logp += 0.0
+
+    return logp
+
+
 def log_likelihood(params):
     return -num_params*0.5*np.log(2*np.pi*0.01**2)-0.5*np.sum((params/0.01)**2)
 
