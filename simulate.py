@@ -11,7 +11,7 @@ plt.rcParams.update({
 
 rng.seed(12)
 a = 0.99999
-sigma = 10.0
+sigma = 5.0
 b = sigma*np.sqrt(1.0 - a**2)
 sig_errorbars = 0.1
 
