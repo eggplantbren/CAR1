@@ -23,6 +23,9 @@ y[0] = sigma*rng.randn()
 for i in range(1, len(t)):
     y[i] = a*y[i-1] + b*rng.randn()
 
+# Add nonzero mean
+y += 20.0
+
 # Observed points
 t_obs = 4000 + rng.randint(1000, size=100)
 y_obs = y[t_obs]
