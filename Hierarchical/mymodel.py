@@ -33,15 +33,15 @@ def prior_transform(us):
     params[1] = 10.0**(-2.0 + 4.0*us[1])
 
     # mu and sigma for log10(sigma)
-    params[2] = np.exp(np.log(1E-3) + np.log(1E4)*us[2])
+    params[2] = -3.0 + 4.0*us[2]
     params[3] = 3.0*us[3]
 
     # mu and sigma for log10(tau)
-    params[4] = np.exp(np.log(1.0)  + np.log(1E6)*us[4])
+    params[4] = 0.0 + 6.0*us[4]
     params[5] = 3.0*us[5]
 
     # mu and sigma for log10(jitter)
-    params[6] = np.exp(np.log(1E-3) + np.log(1E3)*us[6])
+    params[6] = -3.0 + 3.0*us[6]
     params[7] = 3.0*us[7]
 
     return params
