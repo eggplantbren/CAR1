@@ -30,7 +30,7 @@ def prior_transform(us):
 
     # mu and sigma for magnitudes
     params[0] = 40.0*us[0]
-    params[1] = 10.0**(-2.0 + 4.0*us[1])
+    params[1] = 3.0*us[1]
 
     # mu and sigma for log10(sigma)
     params[2] = -3.0 + 4.0*us[2]
@@ -52,16 +52,16 @@ def log_conditional_prior(params, samples):
     # Just normal distributions
     logp = 0.0
 
-    logp += -0.5*np.log(2.0*np.pi*params[1]) \
+    logp += -0.5*np.log(2.0*np.pi*params[1]**2) \
                     - 0.5*(samples[:,0] - params[0])**2/params[1]**2
 
-    logp += -0.5*np.log(2.0*np.pi*params[3]) \
+    logp += -0.5*np.log(2.0*np.pi*params[3]**2) \
                     - 0.5*(samples[:,1] - params[2])**2/params[3]**2
 
-    logp += -0.5*np.log(2.0*np.pi*params[5]) \
+    logp += -0.5*np.log(2.0*np.pi*params[5]**2) \
                     - 0.5*(samples[:,2] - params[4])**2/params[5]**2
 
-    logp += -0.5*np.log(2.0*np.pi*params[7]) \
+    logp += -0.5*np.log(2.0*np.pi*params[7]**2) \
                     - 0.5*(samples[:,3] - params[6])**2/params[7]**2
 
     return logp
@@ -96,7 +96,7 @@ def log_interim_prior(params, samples):
         return -np.Inf
     else:
         logp += 0.0
-
+ 
     return logp
 
 
