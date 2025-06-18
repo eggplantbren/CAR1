@@ -10,37 +10,71 @@ dn4.postprocess()
 path = "../output/"
 filenames = os.listdir(path)
 
-my_bins = np.linspace(15.0, 25.0, 51)
-x = np.linspace(15.0, 25.0, 5001)
-
 plt.rcParams.update({
     "text.usetex": True,
     "font.size": 14,
 })
 
-plt.figure(figsize=(11, 7))
 
-means = []
+def make_plot(mode):
 
-for f in filenames:
-    posterior_samples = np.loadtxt(path + f)
-    means.append(np.mean(posterior_samples[:,0]))
+    assert(mode in ["mu", "sigma", "tau"])
 
-plt.hist(means, bins=my_bins, color="k", alpha=0.7, linewidth=2, density=True,
-         histtype="step", label="Individual Object Posterior Means")
+    plt.figure(figsize=(11, 7))
+
+    means = []
+
+    # These are columns in the individual object files
+    if mode == "mu":
+        column = 0
+    elif mode == "sigma":
+        column = 1
+    elif mode == "tau":
+        column = 2
+
+    for f in filenames:
+        posterior_samples = np.loadtxt(path + f)
+        means.append(np.median(posterior_samples[:,column]))
+
+    if mode in ["sigma", "tau"]:
+        means = np.log10(means)
+
+    plt.hist(means, bins=50, color="k", alpha=0.7, linewidth=2, density=True,
+             histtype="step", label="Individual Object Posterior Medians")
+
+    # Convert to column number for the hyperparameter posterior sample file
+    column *= 2
+
+    
+    xmin = np.min(means) - 0.1*np.ptp(means)
+    xmax = np.max(means) + 0.1*np.ptp(means)
+    x = np.linspace(xmin, xmax, 5001)
+
+    posterior_sample = np.loadtxt("posterior_sample.txt")
+    for i in range(min(100, posterior_sample.shape[0])):
+        mu, sigma = posterior_sample[i, column:column+2]
+        y = np.exp(-0.5*(x - mu)**2/sigma**2)/np.sqrt(2.0*np.pi*sigma**2)
+        if i==0:
+            label = "Possible $f(\\mu | \\alpha)$"
+        else:
+            label = None
+        plt.plot(x, y, "b", alpha=0.1, label=label)
+
+    if mode == "mu":
+        xlabel = "Magnitude $\\mu$"
+    elif mode == "sigma":
+        xlabel = "$\\log_{10}(\\sigma)$"
+    elif mode == "tau":
+        xlabel = "$\\log_{10}(\\tau)$"
 
 
-posterior_sample = np.loadtxt("posterior_sample.txt")
-for i in range(min(100, posterior_sample.shape[0])):
-    mu, sigma = posterior_sample[i, 0:2]
-    y = np.exp(-0.5*(x - mu)**2/sigma**2)/np.sqrt(2.0*np.pi*sigma**2)
-    if i==0:
-        label = "Possible $f(\\mu | \\alpha)$"
-    else:
-        label = None
-    plt.plot(x, y, "b", alpha=0.1, label=label)
+    plt.xlabel(xlabel)
+    plt.ylabel("Probability Density")
+    plt.legend()
+    plt.show()
 
-plt.xlabel("Magnitude $\\mu$")
-plt.ylabel("Probability Density")
-plt.legend()
-plt.show()
+make_plot("mu")
+make_plot("sigma")
+make_plot("tau")
+
+
