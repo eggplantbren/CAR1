@@ -50,22 +50,28 @@ def make_plot(mode):
     xmax = np.max(means) + 0.1*np.ptp(means)
     x = np.linspace(xmin, xmax, 5001)
 
+
+
+    if mode == "mu":
+        symbol = "\\mu"
+        xlabel = "Magnitude $\\mu$"
+    elif mode == "sigma":
+        symbol = "\\sigma"
+        xlabel = "$\\log_{10}(\\sigma)$"
+    elif mode == "tau":
+        symbol = "\\tau"
+        xlabel = "$\\log_{10}(\\tau)$"
+
     posterior_sample = np.loadtxt("posterior_sample.txt")
     for i in range(min(100, posterior_sample.shape[0])):
         mu, sigma = posterior_sample[i, column:column+2]
         y = np.exp(-0.5*(x - mu)**2/sigma**2)/np.sqrt(2.0*np.pi*sigma**2)
         if i==0:
-            label = "Possible $f(\\mu | \\alpha)$"
+            label = f"Possible $f({symbol} | \\alpha)$"
         else:
             label = None
         plt.plot(x, y, "b", alpha=0.1, label=label)
 
-    if mode == "mu":
-        xlabel = "Magnitude $\\mu$"
-    elif mode == "sigma":
-        xlabel = "$\\log_{10}(\\sigma)$"
-    elif mode == "tau":
-        xlabel = "$\\log_{10}(\\tau)$"
 
 
     plt.xlabel(xlabel)
