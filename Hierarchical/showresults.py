@@ -20,7 +20,7 @@ def make_plot(mode):
 
     assert(mode in ["mu", "sigma", "tau"])
 
-    means = []
+    medians = []
 
     # These are columns in the individual object files
     if mode == "mu":
@@ -32,20 +32,20 @@ def make_plot(mode):
 
     for f in filenames:
         posterior_samples = np.loadtxt(path + f)
-        means.append(np.median(posterior_samples[:,column]))
+        medians.append(np.median(posterior_samples[:,column]))
 
     if mode in ["sigma", "tau"]:
-        means = np.log10(means)
+        medians = np.log10(medians)
 
-    plt.hist(means, bins=50, color="k", alpha=0.7, linewidth=2, density=True,
+    plt.hist(medians, bins=50, color="k", alpha=0.7, linewidth=2, density=True,
              histtype="step", label="Individual Object Posterior Medians")
 
     # Convert to column number for the hyperparameter posterior sample file
     column *= 2
 
     
-    xmin = np.min(means) - 0.1*np.ptp(means)
-    xmax = np.max(means) + 0.1*np.ptp(means)
+    xmin = np.min(medians) - 0.1*np.ptp(medians)
+    xmax = np.max(medians) + 0.1*np.ptp(medians)
     x = np.linspace(xmin, xmax, 5001)
 
 
