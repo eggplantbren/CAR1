@@ -12,15 +12,13 @@ filenames = os.listdir(path)
 
 plt.rcParams.update({
     "text.usetex": True,
-    "font.size": 14,
+    "font.size": 11,
 })
 
 
 def make_plot(mode):
 
     assert(mode in ["mu", "sigma", "tau"])
-
-    plt.figure(figsize=(11, 7))
 
     means = []
 
@@ -77,10 +75,17 @@ def make_plot(mode):
     plt.xlabel(xlabel)
     plt.ylabel("Probability Density")
     plt.legend()
-    plt.show()
 
+plt.figure(figsize=(8, 12))
+plt.subplot(3, 1, 1)
 make_plot("mu")
+
+plt.subplot(3, 1, 2)
 make_plot("sigma")
+
+plt.subplot(3, 1, 3)
 make_plot("tau")
+plt.savefig("results.pdf", bbox_inches="tight")
+plt.show()
 
 
