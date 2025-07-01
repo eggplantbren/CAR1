@@ -27,6 +27,14 @@ def get_data(qso_number, band, center_data=False, plot=True,
     y = totaldat[f"MAG_{band}"][qso_number, :]
     err = totaldat[f"MAG_ERR_{band}"][qso_number, :]
     z = totaldat[f"Z"][qso_number]
+    lbol = totaldat[f"log_LBOL"][qso_number]
+    lamb = 1.0/(1.0 + z)
+    if band == "g":
+        lamb *= 4720.0
+    elif band == "r":
+        lamb *= 6415.0
+    elif band == "i":
+        lamb *= 7835.0
 
     keep = ~np.isnan(t)
     t, y, err = t[keep], y[keep], err[keep]
@@ -58,13 +66,24 @@ def get_data(qso_number, band, center_data=False, plot=True,
         plt.errorbar(data[:,0], data[:,1], yerr=data[:,2], fmt=".")
         plt.show()
 
-    return data
+    return dict(light_curve=data, redshift=z, lbol=lbol,
+                log10_lambda=np.log10(lamb))
 
 if __name__ == "__main__":
-    for i in range(190):
-        get_data(i, "r", sanitise=True)
 
+    f = open("qso_info.csv", "w")
+    f.write("qso_number,redshift,log10_bol,log10_lambda\n")
+    f.flush()
+    for i in range(190):
+        for color in ["g", "r", "i"]:
+            data = get_data(i, color, sanitise=True, plot=False)
+
+            f.write(str(i) + ",")
+            f.write(str(data["redshift"]) + ",")
+            f.write(str(data["lbol"]) + ",")
+            f.write(str(data["log10_lambda"]))
+            f.write("\n")
+            f.flush()
+    f.close()
 
 fits_file.close()
-
-
