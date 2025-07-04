@@ -8,10 +8,6 @@ files = os.listdir("../output/")
 all_samples = []
 for f in files:
     samples = np.loadtxt("../output/" + f)
-
-    # Convert all but the first column to log10
-    samples[:, 1:] = np.log10(samples[:, 1:])
-
     all_samples.append(samples)
 
 
