@@ -11,18 +11,27 @@ def prior_transform(us):
     """
     params = us.copy()
     params[0] = 0.0 + 40.0*us[0] # Mean magnitude
-    params[1] = np.exp(np.log(1E-3) + np.log(1E4)*us[1]) # Sigma in magnitudes
-    params[2] = np.exp(np.log(1.0)  + np.log(1E6)*us[2]) # Tau in days
-    params[3] = np.exp(np.log(1E-3) + np.log(1E3)*us[3]) # Jitter in magnitudes
+    params[1] = -5.0 + 15.0*us[1] # log10_sigma in magnitudes
+    params[2] = -5.0 + 15.0*us[2] # log10_tau in days
+    params[3] = -5.0 + 15.0*us[3] # log10_jitter in magnitudes
     return params
 
 def log_likelihood(params):
-    mu, sigma, tau, jitter = params
-    term = terms.RealTerm(a=sigma**2, c=1.0/tau)
-    kernel = term
-    gp = celerite2.GaussianProcess(kernel, mean=mu)
-    gp.compute(data[:,0], yerr=np.sqrt(data[:,2]**2 + jitter**2))
-    return gp.log_likelihood(data[:,1])
+    mu, log10_sigma, log10_tau, log10_jitter = params
+    sigma = 10.0**log10_sigma
+    tau   = 10.0**log10_tau
+    jitter= 10.0**log10_jitter
+
+    try:
+        term = terms.RealTerm(a=sigma**2, c=1.0/tau)
+        kernel = term
+        gp = celerite2.GaussianProcess(kernel, mean=mu)
+        gp.compute(data[:,0], yerr=np.sqrt(data[:,2]**2 + jitter**2))
+        logl = gp.log_likelihood(data[:,1])
+    except:
+        logl = -1.0E300
+
+    return logl
 
 
 def both(us):
