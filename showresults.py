@@ -13,7 +13,6 @@ plt.rcParams.update({
 ndim = 4
 
 posterior_sample = np.loadtxt("posterior_sample.txt")
-posterior_sample[:, 1:] = np.log10(posterior_sample[:, 1:])
 
 figure = corner.corner(posterior_sample,
     labels=["$\\mu$", "$\\log_{10}(\\sigma)$", "$\\log_{10}(\\tau)$",
