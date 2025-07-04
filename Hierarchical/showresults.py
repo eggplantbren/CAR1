@@ -34,9 +34,6 @@ def make_plot(mode):
         posterior_samples = np.loadtxt(path + f)
         medians.append(np.median(posterior_samples[:,column]))
 
-    if mode in ["sigma", "tau"]:
-        medians = np.log10(medians)
-
     plt.hist(medians, bins=50, color="k", alpha=0.7, linewidth=2, density=True,
              histtype="step", label="Individual Object Posterior Medians")
 

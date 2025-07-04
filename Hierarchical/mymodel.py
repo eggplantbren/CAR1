@@ -8,10 +8,6 @@ files = os.listdir("../output/")
 all_samples = []
 for f in files:
     samples = np.loadtxt("../output/" + f)
-
-    # Convert all but the first column to log10
-    samples[:, 1:] = np.log10(samples[:, 1:])
-
     all_samples.append(samples)
 
 
@@ -76,26 +72,21 @@ def log_interim_prior(params, samples):
     """
     logp = 0.0
 
-    if np.any((samples[:,0] < 0.0) | (samples[:,0] > 40.0)):
-        return -np.Inf
-    else:
-        logp += 0.0
+    # mu
+    logp += -0.5*np.log(2.0*np.pi*10.0**2) \
+                    - 0.5*(samples[:,0] - 20.0)**2/10.0**2
 
-    if np.any((samples[:,1] < -3.0) | (samples[:,1] > 1.0)):
-        return -np.Inf
-    else:
-        logp += 0.0
+    # log10_sigma
+    logp += -0.5*np.log(2.0*np.pi*5.0**2) \
+                    - 0.5*(samples[:,1] - 0.0)**2/5.0**2
 
+    # log10_tau
+    logp += -0.5*np.log(2.0*np.pi*5.0**2) \
+                    - 0.5*(samples[:,2] - 0.0)**2/5.0**2
 
-    if np.any((samples[:,2] < 0.0) | (samples[:,2] > 6.0)):
-        return -np.Inf
-    else:
-        logp += 0.0
-
-    if np.any((samples[:,3] < -3.0) | (samples[:,3] > 0.0)):
-        return -np.Inf
-    else:
-        logp += 0.0
+    # log10_jitter
+    logp += -0.5*np.log(2.0*np.pi*5.0**2) \
+                    - 0.5*(samples[:,3] - 0.0)**2/5.0**2
  
     return logp
 
