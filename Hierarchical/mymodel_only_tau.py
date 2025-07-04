@@ -55,10 +55,8 @@ def log_interim_prior(params, samples):
     """
     logp = 0.0
 
-    if np.any((samples[:,2] < 0.0) | (samples[:,2] > 6.0)):
-        return -np.Inf
-    else:
-        logp += 0.0
+    logp += -0.5*np.log(2.0*np.pi*5.0**2) \
+                    - 0.5*(samples[:,2] - 0.0)**2/5.0**2
  
     return logp
 
