@@ -1,6 +1,7 @@
 import celerite2
 from celerite2 import terms
 import numpy as np
+from scipy.stats import norm
 
 num_params = 4
 data = np.loadtxt("data.txt")
@@ -10,10 +11,10 @@ def prior_transform(us):
     Parameters are mu, sigma, tau, jitter
     """
     params = us.copy()
-    params[0] = 0.0 + 40.0*us[0] # Mean magnitude
-    params[1] = -5.0 + 15.0*us[1] # log10_sigma in magnitudes
-    params[2] = -5.0 + 15.0*us[2] # log10_tau in days
-    params[3] = -5.0 + 15.0*us[3] # log10_jitter in magnitudes
+    params[0] = 20.0 + 10.0*norm.ppf(us[0]) # Mean magnitude
+    params[1] = 0.0  + 5.0*norm.ppf(us[1])  # log10_sigma in magnitudes
+    params[2] = 0.0  + 5.0*norm.ppf(us[2])  # log10_tau in days
+    params[3] = 0.0  + 5.0*norm.ppf(us[3])  # log10_jitter in magnitudes
     return params
 
 def log_likelihood(params):
