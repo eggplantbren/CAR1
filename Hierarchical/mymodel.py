@@ -1,7 +1,8 @@
 import numpy as np
 import os
+import pandas as pd
 
-num_params = 8
+num_params = 11
 
 # Load posterior samples
 files = os.listdir("../output/")
@@ -17,6 +18,9 @@ def logsumexp(xs):
 
 def logmeanexp(xs):
     return(logsumexp(xs) - np.log(len(xs)))
+
+# Load quasar metadata
+qso_info = pd.read_csv("../qso_info.csv")
 
 
 
@@ -39,6 +43,11 @@ def prior_transform(us):
     # mu and sigma for log10(jitter)
     params[6] = -3.0 + 3.0*us[6]
     params[7] = 3.0*us[7]
+
+    # Regression coefficients
+    params[8] = -10.0 + 20.0*us[8] # Coefficient for log10_lbol
+    params[9] = -10.0 + 20.0*us[9] # Coefficient for log10_lambda
+    params[10] = -1.0 + 2.0*us[10] # Coefficient for interaction term
 
     return params
 
