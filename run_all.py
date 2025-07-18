@@ -3,10 +3,11 @@ import dnest4.classic as dn4
 import subprocess
 
 subprocess.run(["mkdir", "output"])
+subprocess.run("rm output/*", shell=True)
 
 for i in range(190):
-    for band in ["g"]:
-        get_data(i, band, deredshift=True, sanitise=True, plot=False)
+    for band in ["g", "r", "i"]:
+        get_data(i, band, deredshift=False, sanitise=True, plot=False)
         subprocess.run("./main -s {seed}".format(seed=i), shell=True)
         dn4.postprocess(plot=False, rng_seed=0)
         subprocess.run(["mv", "posterior_sample.txt",
