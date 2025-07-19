@@ -78,11 +78,11 @@ def log_conditional_prior(params, samples, i):
                     - 0.5*(samples[:,1] - params[2])**2/params[3]**2
 
     # Compute expected value of log10_tau according to regression model
-    mu = params[4] + 1.0*np.log10(1.0 + qso_data["redshift"][i]) \
-                   + params[8]*(qso_data["log10_lbol"][i] - mean_log10_lbol) \
-                   + params[9]*(qso_data["log10_lambda"][i] - mean_log10_lambda) \
-                   + params[10]*(qso_data["log10_lbol"][i] - mean_log10_lbol) \
-                               *(qso_data["log10_lambda"][i] - mean_log10_lambda)
+    mu = params[4] + 1.0*np.log10(1.0 + qso_info["redshift"][i]) \
+                   + params[8]*(qso_info["log10_lbol"][i] - mean_log10_lbol) \
+                   + params[9]*(qso_info["log10_lambda"][i] - mean_log10_lambda) \
+                   + params[10]*(qso_info["log10_lbol"][i] - mean_log10_lbol) \
+                               *(qso_info["log10_lambda"][i] - mean_log10_lambda)
 
     logp += -0.5*np.log(2.0*np.pi*params[5]**2) \
                     - 0.5*(samples[:,2] - mu)**2/params[5]**2
