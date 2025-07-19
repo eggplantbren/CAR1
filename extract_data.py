@@ -72,7 +72,7 @@ def get_data(qso_number, band, center_data=False, plot=True,
 if __name__ == "__main__":
 
     f = open("qso_info.csv", "w")
-    f.write("qso_number,band,redshift,log10_bol,log10_lambda\n")
+    f.write("qso_number,band,redshift,log10_lbol,log10_lambda\n")
     f.flush()
     for i in range(190):
         for band in ["g", "r", "i"]:
