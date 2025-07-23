@@ -27,6 +27,8 @@ assert(qso_info.shape[0] == len(all_samples))
 
 mean_log10_lbol = np.mean(qso_info["log10_lbol"])
 mean_log10_lambda = np.mean(qso_info["log10_lambda"])
+mean_log10_1plusz = np.mean(np.log10(1.0 + qso_info["redshift"]))
+
 
 def logsumexp(xs):
     top = np.max(xs)
@@ -78,7 +80,7 @@ def log_conditional_prior(params, samples, i):
                     - 0.5*(samples[:,1] - params[2])**2/params[3]**2
 
     # Compute expected value of log10_tau according to regression model
-    mu = params[4] + 1.0*np.log10(1.0 + qso_info["redshift"][i]) \
+    mu = params[4] + 1.0*(np.log10(1.0 + qso_info["redshift"][i]) - mean_log10_1plusz)\
                    + params[8]*(qso_info["log10_lbol"][i] - mean_log10_lbol) \
                    + params[9]*(qso_info["log10_lambda"][i] - mean_log10_lambda) \
                    + params[10]*(qso_info["log10_lbol"][i] - mean_log10_lbol) \
