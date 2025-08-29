@@ -12,16 +12,17 @@ def prior_transform(us):
     """
     params = us.copy()
     params[0] = 20.0 + 10.0*norm.ppf(us[0]) # Mean magnitude
-    params[1] = 0.0  + 5.0*norm.ppf(us[1])  # log10_sigma in magnitudes
+    params[1] = 0.0  + 5.0*norm.ppf(us[1])  # log10_sigma' in magnitudes
     params[2] = 0.0  + 5.0*norm.ppf(us[2])  # log10_tau in days
     params[3] = 0.0  + 5.0*norm.ppf(us[3])  # log10_jitter in magnitudes
     return params
 
 def log_likelihood(params):
-    mu, log10_sigma, log10_tau, log10_jitter = params
-    sigma = 10.0**log10_sigma
+    mu, log10_sigma_prime, log10_tau, log10_jitter = params
+    sigma_prime = 10.0**log10_sigma_prime
     tau   = 10.0**log10_tau
     jitter= 10.0**log10_jitter
+    sigma = sigma_prime*np.sqrt(0.5*tau)
 
     try:
         term = terms.RealTerm(a=sigma**2, c=1.0/tau)
