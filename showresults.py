@@ -15,7 +15,7 @@ ndim = 4
 posterior_sample = np.loadtxt("posterior_sample.txt")
 
 figure = corner.corner(posterior_sample,
-    labels=["$\\mu$", "$\\log_{10}(\\sigma)$", "$\\log_{10}(\\tau)$",
+    labels=["$\\mu$", "$\\log_{10}(\\beta)$", "$\\log_{10}(\\tau)$",
             "$\\log_{10}$(jitter)"],
             plot_contours=False,
             plot_density=False, fontsize=14,
