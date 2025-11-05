@@ -1,0 +1,474 @@
+% oja_template.tex
+% Unofficial LaTeX template for publishing 
+% in the Open Journal of Astrophysics
+% v1.0 released September 6, 2015 (matches openjournal.cls)
+% Author: Emmanuel Frion
+
+% Basic setup
+\documentclass{openjournal}
+% Available options:
+% [twocolumn] - two-column mode
+% [onecolumn] - (default) main text in one-column mode
+% [apj]       - typeset in the style of ApJ.
+% [apjl]      - (default) typeset in the style of ApJ Letters 
+% [tighten]   - some adjustments to approximate grid typesetting
+% [numberedappendix]   - number appendix sections as A, B, etc
+% [appendixfloats]  - use separate numbering for floats within appendix
+% [twocolappendix]  - make appendix in two-col mode in a two-col paper
+% [revtex4]   - force using revtex4 (rather than 4-1)
+
+% Remove this package
+\usepackage{lipsum}
+
+% In case of issues with doi formatting, uncomment these lines
+% \let\olddoi\doi
+% \renewcommand{\doi}[1]{\href{https://doi.org/#1}{DOI: \nolinkurl{#1}}}
+
+% Optional useful packages
+\usepackage{xcolor}
+\usepackage{textgreek}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+
+\usepackage{hyperref}
+\hypersetup{
+    unicode, 
+    colorlinks=true,
+    linkcolor=linkcolor,
+    citecolor=linkcolor,
+    filecolor=linkcolor,
+    urlcolor=linkcolor,
+}
+\usepackage{color,colortbl}
+\definecolor{linkcolor}{rgb}{0.0,0.3,0.5}
+\usepackage{tensind}
+\tensordelimiter{?}
+\DeclareGraphicsExtensions{.bmp,.png,.jpg,.pdf}
+\usepackage{verbatim}
+\usepackage[normalem]{ulem}
+\usepackage{orcidlink}
+\usepackage{soul}
+\newcommand{\given}{\, | \,}
+\newcommand{\btheta}{\boldsymbol{\theta}}
+\newcommand{\bD}{\boldsymbol{D}}
+\newcommand{\bmu}{\boldsymbol{\mu}}
+\newcommand{\bC}{\boldsymbol{C}}
+\newcommand{\by}{\boldsymbol{y}}
+
+
+
+\urlstyle{same}
+
+% Define path to put your plots, figures, etc...
+\graphicspath{ {./figs/} }
+
+\begin{document}
+\title{Hierarchical Bayesian Analysis of Variability Timescales for 190 Quasars}
+
+
+\author{Author 1\orcidlink{0000-0000-0000-0000}}
+\email{author1@you.com}
+\affiliation{Your nice institute / university}
+\affiliation{Your second nice institute / university}
+
+\author{Author 2\orcidlink{0000-0000-0000-0000}}
+\email{author2@you.com}
+\affiliation{Your nice institute / university}
+\affiliation{Your second nice institute / university}
+
+
+
+\begin{abstract}
+Quasar variability is commonly modelled with stochastic time series
+models, the simplest of which is the continuous time 
+autoregressive model or CAR(1), also known as a Damped Random Walk (DRW)
+We re-analyse the time series from \citet{stone} with a CAR(1) model. We get different
+results. Then we do it hierarchically, giving awesome results.
+\end{abstract}
+
+% Write your keywords here
+\begin{keywords}
+    {First, second}
+\end{keywords}
+
+\maketitle
+
+
+\section{Introduction}
+
+
+The variability timescales provided by \citet{stone} was also used by
+\citet{lewis2023detection}
+and \citet{brewer2025revisiting} to infer the expected presence of cosmological time dilation
+in the variability timescales.
+
+
+\section{Bayesian CAR(1) Fitting}
+The CAR(1) model is well established in studies of quasar variability
+\citep{kelly2009variations}. While there is some evidence that
+the light curves depart from this model
+\citep[e.g.][]{zu2013quasar}
+it remains a useful approximation with a relatively
+simple set of parameters.
+
+The covariance between the signal at two different times,
+$y(t_1)$ and $y(t_2)$, is given by
+\begin{align}
+C(t_1, t_2) &= \sigma^2 \exp\left(-\frac{|t_2 - t_1|}{\tau}\right),\label{eqn:covariance_function}
+\end{align}
+where $\tau$ is a timescale parameter, and $\sigma$ is a parameter
+describing the typical degree of deviation of $y(t)$ from its mean
+value $\mu$ (which we assume to be a constant).
+
+The likelihood function for a Gaussian Process is a multivariate normal
+distribution, with the mean vector $\bmu$ and covariance matrix $\bC$
+that is a function of the parameters:
+\begin{align}
+p(\by \given \btheta)
+    &= \frac{1}{\sqrt{(2\pi)^n \det \bC}}
+        \exp\left(-\frac{1}{2}(\by - \bmu)^T\bC^{-1}(\by - \bmu)\right).\label{eqn:gp}
+\end{align}
+However, the covariance matrix is not given directly by
+Equation~\ref{eqn:covariance_function}, which applies to the
+assumed underlying noise-free signal $y(t)$. To obtain
+the covariance matrix for the observations $\by$, we need
+to add terms for the measurement errors $\{s_i\}$ and
+an additional noise term, traditionally called `jitter',
+which acts as additional possible white noise (or can also
+be thought of as expanding the error bars).
+The covariance matrix elements are therefore
+\begin{align}
+C_{ij} &= \sigma^2 \exp\left(-\frac{|t_j - t_i|}{\tau}\right)
+                + \left[s_i^2 + (\textnormal{jitter})^2\right]
+                    \delta_{ij},
+\end{align}
+where $\delta_{ij}$ is the Kronecker delta.
+In practice, it is computationally expensive to evaluate
+the likelihood function of Equation~\ref{eqn:gp}
+we did not evaluate this likelihood function directly.
+For certain types of covariance matrix such as this one,
+acceleration techniques are possible. To benefit from these
+we used the {\tt celerite2} Python package \citep{celerite2}
+to implement the log likelihood function.
+
+Throughout this paper, all posterior distributions were computed
+using Diffusive Nested Sampling \citep{dns, dnest4},
+an MCMC-based variant of Nested Sampling \citep{skilling}.
+
+
+\section{Posterior Distribution for a Single Light Curve}
+Inference for the CAR(1) parameters $(\mu, \sigma, \tau)$ is quite
+difficult, often resulting in posterior distributions with strong
+dependence between the parameters. Here, we show an example of this
+to illustrate the issue.
+Figure~\ref{fig:simulation} shows an example of a curve $y(t)$
+generated from an AR(1) process (a discrete-time analogue of the 
+CAR(1), used here for simplicity). We have simulated observations
+over the time period $t=4000$ to $t=5000$, shown as blue points.
+If we compute the joint posterior distribution for $\mu$, $\sigma$,
+and $\tau$ from this data, we should expect to see a reasonable
+probability density at the true values
+$20, 5, 100000$ respectively. This does occur; yet the data is clearly
+also compatible with a hypothesis that $\mu$ is around 21.5,
+$\sigma$ around 0.5, and $\tau$ quite short. The posterior distribution
+represents this range of possibilities with a distribution that
+has very strong dependence between the parameters, and whose marginal
+distributions are very wide.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/simulation.pdf}
+\caption{A signal (red curve) simulated using an AR(1) process.
+If we were to observe
+the signal only at the observation times (blue points),
+it would be plausible that $\sigma$ and $\tau$ are small,
+yet in reality they are large.\label{fig:simulation}}
+\end{figure}
+
+Figure~\ref{fig:cornerplot} shows a corner plot
+\citep{corner} of the posterior distribution for the four
+parameters of the CAR(1) model. The marginal distributions
+for all parameters apart from $\mu$ are very broad. The
+joint distributions show that, as $\sigma$ and $\tau$ increase,
+the uncertainty about $\mu$ gets larger, and a wide range
+of $\sigma$ and $\tau$ values remains plausible.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/cornerplot.pdf}
+\caption{A corner plot of the posterior distribution for $\mu$, $\sigma$, $\tau$, and the jitter parameter
+based on the simulated dataset in Figure~\ref{fig:simulation}.
+There is a substantial linear dependence between $\log_{10}(\sigma)$
+and $\log_{10}(\tau)$ --- the data is compatible with both being
+small and with both being large. If they are large, the uncertainty
+about $\mu$ becomes larger.
+\label{fig:cornerplot}}
+\end{figure}
+
+
+
+\section{Timescale Comparison}
+
+
+Applying the CAR(1) model independently to each light curve,
+we obtained posterior distributions for $\tau$, which are more
+clearly interpreted when transformed into distributions over
+$\log_{10}(\tau)$ when measured in days.
+These $\tau$ values were adjusted for redshift, so can be considered
+as rest-frame timescales rather than the directly observed
+timescales.
+These posterior distributions are much wider than those
+found in the original analyses. This appears to be due to the
+fact that we have let the mean parameter $\mu$ be free,
+whereas the previous analysis fixed $\mu$ at an estimated
+value.
+
+
+
+
+
+\section{Hierarchical Analysis}
+A hierarchical model is one where the priors for the parameters
+$\btheta$ are defined indirectly. This is done by defining the prior
+conditional on some hypothetical quantities called hyperparameters,
+denoted $\alpha$. This conditional prior is $p(\btheta \given \alpha)$.
+Then, a prior for the hyperparameters, $p(\alpha)$, is specified.
+The implied marginal prior for the parameters $\btheta$ could, in principle,
+be obtained by marginalising out the hyperparameters:
+\begin{align}
+p(\btheta) &= \int p(\alpha) p(\btheta \given \alpha) \, d\alpha.
+\end{align}
+Hierarchical models can be used to incorporate prior information such
+as the idea that the $\btheta$ parameters are clustered around a typical
+value, $\mu_\theta$ (say). The conditional part of the prior distribution
+might be
+\begin{align}
+\theta_i \given \mu_\theta, \sigma_\theta \sim \textnormal{Normal}(\mu_\theta, \sigma_\theta^2)
+\end{align}
+in order to implement this idea.
+
+Computing the posterior distribution for a hierarchical model is usually
+done by running Markov Chain Monte Carlo (MCMC) or a similar algorithm to
+characterise the posterior distribution for the hyperparameters and the
+parameters. However, in this case, the computational cost would be prohibitive.
+Since we already have the posterior samples for the parameters of the individual
+objects, we can make use of these to retrofit a hierarchical model.
+This involves an importance sampling approximation, which we will now derive.
+This derivation is similar to the ones found in \citet{brewer2014hierarchical} and
+\citet{pancoast2014modelling},
+but here we include more detail.
+An earlier astronomical application of the same idea
+is found in \citet{hogg2010inferring}.
+
+Suppose we have a collection of $N$ ``objects'', each of which has some
+property/parameter $\theta_i$ (which may be multidimensional), and available data
+$D_i$. We will use bold notation for the entire collections of parameters
+and datasets:
+\begin{align}
+\btheta &= \{\theta_1, ..., \theta_N\} \\
+\bD &= \{D_1, ..., D_n\}.
+\end{align}
+
+Each object's data has analysed separately using a prior $\pi(\theta_i)$
+and a likelihood function $p(D_i \given \theta_i)$. The posterior distributions
+for each object's parameters are given by Bayes' theorem:
+\begin{align}
+p(\theta_i \given D_i) &= \frac{\pi(\theta_i) p(D_i \given \theta_i)}{Z_i},
+\end{align}
+where $Z_i$ is the marginal likelihood or evidence from the analysis of
+object $i$'s data. From the separate analyses, we can represent these posterior
+distributions with Monte Carlo samples.
+Using these samples, we could also form the joint distribution for
+the properties of all objects together:
+\begin{align}
+p(\btheta \given \bD)
+    &= \prod_{i=1}^N \frac{\pi(\theta_i) p(D_i \given \theta_i)}{Z_i}.
+\end{align}
+This joint posterior distribution
+could be represented in a Monte Carlo way by choosing one sample
+per object from the available posterior samples, to get one plausible
+collection of parameters $\btheta$.
+However, this assumes independence of the posterior distributions,
+which is not entirely appropriate.
+The independence assumption implies that learning some of the $\theta_i$
+values would tell us nothing about all other $\theta_i$ values,
+which is unrealistic.
+Also, the implied joint prior $\pi(\btheta) = \prod_i \pi(\theta_i)$,
+if $\pi$ is chosen to be a wide distribution, implies (with high probability)
+that $\{\theta_i\}$ values are distributed (in a frequency sense) widely across the range
+of possible values.
+
+A hierarchical model is more appropriate in this situation. With a hierarchical
+model, the prior
+for $\theta_1, ..., \theta_n$ is specified indirectly by first assigning
+a conditional prior, depending on some hyperparameter(s) $\alpha$.
+Conditional on $\alpha$, the prior distribution is
+\begin{align}
+p(\btheta \given \alpha) &= \prod_{i=1}^N f(\theta_i \given \alpha)
+\label{eqn:prior_given_alpha}
+\end{align}
+where $f(\theta_i \given \alpha)$ is some probability distribution
+which is the same for all objects.
+To complete the prior specification, a prior $p(\alpha)$ for the hyperparameters
+is needed. In principle, the marginal prior for the $\btheta$
+could then be obtained by marginalisation:
+\begin{align}
+p(\btheta) &= \int p(\alpha)\prod_{i=1}^N f(\theta_i \given \alpha) \, d\alpha.
+\end{align}
+This would be a dependent distribution, so learning some of the $\theta_i$ values
+would affect our knowledge of the other $\theta_i$ values.
+
+It is computationally prohibitive to analyse all 190 quasars, or all 570 light curves,
+simultaneously with such a hierarchical prior. Instead, we will make use of the posterior
+distributions from the separate analyses, and reconstruct what the results of
+the hierarchical model would have been.
+First, we will attempt to find the posterior distribution for the hyperparameters
+$\alpha$. This is given by Bayes' theorem:
+\begin{align}
+p(\alpha \given \bD) &= \frac{p(\alpha) p(\bD \given \alpha)}{Z_\alpha},
+\end{align}
+where $Z_{\alpha}$ is a new marginal likelihood value.
+
+The likelihood function can be rewritten to make the individual object parameters
+$\btheta$ appear. In general, this gives
+\begin{align}
+p(\alpha \given \bD) &=
+    \frac{p(\alpha) \int p(\btheta, \bD \given \alpha) \, d^N\btheta}{Z_\alpha}.
+\end{align}
+The term inside the integral can be factorised using the product rule,
+giving
+\begin{align}
+p(\btheta, \bD \given \alpha)
+    &= p(\btheta \given \alpha) p(\bD \given \btheta, \alpha).
+\end{align}
+However, we can make some standard simplifications. Firstly, the prior for
+the $\theta$ parameters given $\alpha$ has already been defined in
+Equation~\ref{eqn:prior_given_alpha}. Secondly, once the $\theta_i$ are known,
+$\alpha$ becomes irrelevant to the data, and each dataset is also independent
+once the $\theta_i$ are known. This gives
+\begin{align}
+p(\bD \given \btheta, \alpha)
+    &= p(\bD \given \btheta) \\
+    &= \prod_{i=1}^N p(D_i \given \theta_i).
+\end{align}
+Therefore we have
+\begin{align}
+p(\alpha \given \bD) &= 
+    \frac{p(\alpha) \int \prod_{i=1}^N f(\theta_i \given \alpha) \prod_{i=1}^N p(D_i \given \theta_i) \, d^N\btheta}{Z_\alpha}.
+\end{align}
+Finally, the products can be combined together into a single product:
+\begin{align}
+p(\alpha \given \bD) &= 
+    \frac{p(\alpha) \int \prod_{i=1}^N f(\theta_i \given \alpha) p(D_i \given \theta_i) \, d^N\btheta}{Z_\alpha}.
+\end{align}
+The integral is of a product of terms each involving only $\theta_i$, so we can
+rewrite the integral as a product of integrals, one for each object:
+\begin{align}
+p(\alpha \given \bD) &= 
+    \frac{p(\alpha) \prod_{i=1}^N  \int f(\theta_i \given \alpha) p(D_i \given \theta_i) \, d\theta_i}{Z_\alpha}.
+\end{align}
+The likelihood function is now a familiar product of terms, one for each
+object. The term for each object is an integral, which now becomes our focus.
+For each object, there is an integral over the parameter space:
+\begin{align}
+L_i &= \int f(\theta_i \given \alpha) p(D_i \given \theta_i) \, d\theta_i.
+\end{align}
+To do this integral, we will make use of the Monte Carlo samples
+which we have previously generated when each object was analysed individually.
+Recall that the posterior distribution obtained was given by
+\begin{align}
+p(\theta_i \given D_i) &= \frac{\pi(\theta_i) p(D_i \given \theta_i)}{Z_i}.\label{eqn:individual_posterior}
+\end{align}
+We can write $L_i$ as an expectation with respect to this posterior as follows:
+\begin{align}
+L_i &= \int f(\theta_i \given \alpha) p(D_i \given \theta_i) \, d\theta_i \\
+    &= \int \frac{\pi(\theta_i) p(D_i \given \theta_i)}{Z_i}
+            \frac{ f(\theta_i \given \alpha) Z_i}{\pi(\theta_i)}\, d\theta_i \\
+    &= Z_i\left<\frac{ f(\theta_i \given \alpha)}{\pi(\theta_i)}\right>_{p(\theta_i \given D_i)}.
+\end{align}
+Since we have posterior samples already, the expectation may be approximated
+using Monte Carlo. If we have $n_i$ such samples
+$\theta_{i, 1}, \theta_{i, 2}, ..., \theta_{i, n}$
+for object $i$,
+this gives
+\begin{align}
+L_i &\approx \frac{Z_i}{n_i} \sum_{j=1}^{n_i} \frac{ f(\theta_{i, j} \given \alpha)}{\pi(\theta_{i, j})}.
+\end{align}
+The full likelihood can be built up by taking the product of these terms
+over all objects.
+
+\section{Application to $g$-band light curves}
+As an initial investigation, we applied the hierarchical model to
+the $g$-band light curves only, and considered the hierarchical
+model for $\log_{10}(\tau)$ only.
+
+
+\section{Results for $g$-band light curves}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/results_only_tau.pdf}
+    \caption{Wow!}
+    \label{fig:results_only_tau}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/results.pdf}
+    \caption{Wow!}
+    \label{fig:results}
+\end{figure}
+
+
+\section{Outlier Removal}
+Some of the light curves in the dataset, largely in the $r$- and $i$-band
+light curves, contain discrepant
+magnitude measurements which appear unreliable. The most
+egregious case is a reported magnitude of -44, which clearly
+must be discarded, but there are other points which
+are less extreme which may not be accurate as they suddenly
+deviate from the overall trend of the light curve.
+These points have two main effects on the posterior distributions
+for the CAR(1) parameters. The model has two main ways of
+explaining how such a discrepant point could have occurred.
+The first is by increasing the jitter term and explaining the
+discrepant point as a white noise fluctuation. The second is
+to reduce the value of $\tau$, which has a similar effect,
+making the CAR(1) process more similar to a white noise
+distribution.
+Before running the inferences, the previous analyses
+ran the light curves through a Hampel filter \citep{hampel}
+to remove outliers
+(Stone, priv. comm).
+
+
+
+\section{Conclusion}
+The conclusion text goes here.
+
+\section*{Acknowledgments}
+It is a pleasure to thank Will Farr (Stony Brook, Flatiron) and
+David Hogg (NYU) for helpful conversations about the approximation scheme
+used in this paper.
+
+
+\bibliographystyle{apsrev4-1}
+
+% You should give the same name for your .bbl as your main .tex
+% since it is a requirement for posting on ArXiv.
+\bibliography{references.bib}
+
+
+\begin{appendix}
+
+\section{Appendix 1}
+\label{ap:ap}
+\lipsum[4]
+
+\end{appendix}
+
+
+ 
+
+\end{document}
+
