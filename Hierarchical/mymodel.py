@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import pandas as pd
+from scipy.stats import t
 
 num_params = 11
 
@@ -48,7 +49,7 @@ def prior_transform(us):
     params[0] = 40.0*us[0]
     params[1] = 3.0*us[1]
 
-    # mu and sigma for log10(sigma)
+    # mu and sigma for log10(beta)
     params[2] = -3.0 + 4.0*us[2]
     params[3] = 3.0*us[3]
 
@@ -105,20 +106,16 @@ def log_interim_prior(params, samples):
     logp = 0.0
 
     # mu
-    logp += -0.5*np.log(2.0*np.pi*10.0**2) \
-                    - 0.5*(samples[:,0] - 20.0)**2/10.0**2
+    logp += t.logpdf(samples[:,0], loc=20.0, scale=10.0, df=4)
 
-    # log10_sigma
-    logp += -0.5*np.log(2.0*np.pi*5.0**2) \
-                    - 0.5*(samples[:,1] - 0.0)**2/5.0**2
+    # log10_beta
+    logp += t.logpdf(samples[:,1], loc=0.0, scale=5.0, df=4)
 
     # log10_tau
-    logp += -0.5*np.log(2.0*np.pi*5.0**2) \
-                    - 0.5*(samples[:,2] - 0.0)**2/5.0**2
+    logp += t.logpdf(samples[:,2], loc=0.0, scale=5.0, df=4)
 
     # log10_jitter
-    logp += -0.5*np.log(2.0*np.pi*5.0**2) \
-                    - 0.5*(samples[:,3] - 0.0)**2/5.0**2
+    logp += t.logpdf(samples[:,3], loc=0.0, scale=5.0, df=4)
  
     return logp
 
