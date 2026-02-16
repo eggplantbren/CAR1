@@ -16,6 +16,10 @@ class MyModel
         // Parameter vector with Uniform(0, 1) priors
         std::vector<double> params;
 
+        // Cached log likelihood for direct Metropolis
+        double logl;
+        void set_log_likelihood();
+
     public:
         // Constructor only gives size of params
         MyModel();

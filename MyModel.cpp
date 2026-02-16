@@ -20,11 +20,13 @@ void MyModel::from_prior(DNest4::RNG& rng)
 {
     for(double& x: params)
         x = rng.rand();
+    set_log_likelihood();
 }
 
 double MyModel::perturb(DNest4::RNG& rng)
 {
     double logH = 0.0;
+    double old_logl = logl;
 
     int type = rng.rand_int(2);
     if(type == 0)
@@ -44,18 +46,22 @@ double MyModel::perturb(DNest4::RNG& rng)
         }
     }
 
-    return logH;
+    set_log_likelihood();
+    return logl - old_logl;
 }
 
-double MyModel::log_likelihood() const
+void MyModel::set_log_likelihood()
 {
     pybind11::array_t<double> numpy_array(params.size(),
                                           params.data());
 
     static pybind11::object both = my_module.attr("both");
-    double result = both(numpy_array).cast<double>();
+    logl = both(numpy_array).cast<double>();
+}
 
-    return result;
+double MyModel::log_likelihood() const
+{
+    return logl;
 }
 
 void MyModel::set_size(int _size)

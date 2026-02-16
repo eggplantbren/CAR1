@@ -21,7 +21,7 @@ def prior_transform(us):
     Parameters are mu, sigma, tau, jitter for each light curve
     """
     hypers = us[0:num_hyperparameters]
-    params = us[num_hyperparameters:]
+    params = us[num_hyperparameters:].copy()
     params = params.reshape((num_qsos, num_bands, 4))
 
     for i in range(num_qsos):
@@ -49,8 +49,9 @@ def log_likelihood(params):
                 term = terms.RealTerm(a=sigma**2, c=1.0/tau)
                 kernel = term
                 gp = celerite2.GaussianProcess(kernel, mean=mu)
-                gp.compute(data[k][:,0], yerr=np.sqrt(data[k][:,2]**2 + jitter**2))
-                logl += gp.log_likelihood(data[k][:,1])
+                this_data = data[k]["light_curve"]
+                gp.compute(this_data[:,0], yerr=np.sqrt(this_data[:,2]**2 + jitter**2))
+                logl += gp.log_likelihood(this_data[:,1])
             except:
                 logl += -1.0E300
             k += 1
