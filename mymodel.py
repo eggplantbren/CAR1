@@ -21,32 +21,26 @@ def prior_transform(us):
     Parameters are mu, sigma, tau, jitter for each light curve
     """
     hypers = us[0:num_hyperparameters]
-    params = us[num_hyperparameters:].copy()
-    params = params.reshape((num_qsos, num_bands, 4))
+    qso_params_3d = us[num_hyperparameters:].copy()
+    qso_params_3d = qso_params_3d.reshape((num_qsos, num_bands, 4))
 
-    params[:, :, 0] = 20.0 + 5.0*t.ppf(params[:, :, 0], df=4) # Mean magnitude
-    params[:, :, 1] = 0.0  + 5.0*t.ppf(params[:, :, 1], df=4) # log10_beta in magnitudes
-    params[:, :, 2] = 0.0  + 5.0*t.ppf(params[:, :, 2], df=4) # log10_tau in days
-    params[:, :, 3] = 0.0  + 5.0*t.ppf(params[:, :, 3], df=4) # log10_jitter in magnitudes
+    qso_params_3d[:, :, 0] = 20.0 + 5.0*t.ppf(qso_params_3d[:, :, 0], df=4) # Mean magnitude
+    qso_params_3d[:, :, 1] = 0.0  + 5.0*t.ppf(qso_params_3d[:, :, 1], df=4) # log10_beta in magnitudes
+    qso_params_3d[:, :, 2] = 0.0  + 5.0*t.ppf(qso_params_3d[:, :, 2], df=4) # log10_tau in days
+    qso_params_3d[:, :, 3] = 0.0  + 5.0*t.ppf(qso_params_3d[:, :, 3], df=4) # log10_jitter in magnitudes
 
-    # 161 ms
-#    for i in range(num_qsos):
-#        for j in range(num_bands):
-#            params[i, j, 0] = 20.0 + 5.0*t.ppf(params[i, j, 0], df=4) # Mean magnitude
-#            params[i, j, 1] = 0.0  + 5.0*t.ppf(params[i, j, 1], df=4) # log10_beta in magnitudes
-#            params[i, j, 2] = 0.0  + 5.0*t.ppf(params[i, j, 2], df=4) # log10_tau in days
-#            params[i, j, 3] = 0.0  + 5.0*t.ppf(params[i, j, 3], df=4) # log10_jitter in magnitudes
-
-    return params
+    return np.hstack([hypers, qso_params_3d.flatten()])
 
 def log_likelihood(params):
 
     logl = 0.0
 
-    mu =    params[:, :, 0]   
-    beta =  10.0**params[:, :, 1]
-    tau   = 10.0**params[:, :, 2]
-    jitter= 10.0**params[:, :, 3]
+    qso_params_3d = params[num_hyperparameters:].reshape((num_qsos, num_bands, 4))
+
+    mu =    qso_params_3d[:, :, 0]   
+    beta =  10.0**qso_params_3d[:, :, 1]
+    tau   = 10.0**qso_params_3d[:, :, 2]
+    jitter= 10.0**qso_params_3d[:, :, 3]
     sigma = beta*np.sqrt(0.5*tau)
 
     k = 0
