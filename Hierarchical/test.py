@@ -47,22 +47,18 @@ def logmeanexp(xs):
     return(logsumexp(xs) - np.log(len(xs)))
 
 
-def log_conditional_prior(params, samples, i):
+def log_conditional_prior(params, samples):
 
     # Just normal distributions
-    logp = norm.logpdf(samples, loc=params[0], scale=params[1])
+    return norm.logpdf(samples, loc=params[0], scale=params[1])
 
-    return logp
 
-def log_interim_prior(params, samples):
+
+def log_interim_prior(samples):
     """
     Evaluate the interim prior at one set of samples.
     """
-    logp = 0.0
-
-    logp += norm.logpdf(samples, loc=mu_pi, scale=sigma_pi)
-
-    return logp
+    return norm.logpdf(samples, loc=mu_pi, scale=sigma_pi)
 
 
 def log_likelihood(params):
@@ -71,8 +67,8 @@ def log_likelihood(params):
     for i in range(posterior_samples.shape[0]):
 
         # The expectation inside the product sign
-        loge = logmeanexp(log_conditional_prior(params, posterior_samples[i, :], i) -
-                          log_interim_prior(params, posterior_samples[i, :]))
+        loge = logmeanexp(log_conditional_prior(params, posterior_samples[i, :]) -
+                          log_interim_prior(posterior_samples[i, :]))
 
         logl = logl + loge
 

@@ -95,7 +95,7 @@ def log_conditional_prior(params, samples, i):
 
     return logp
 
-def log_interim_prior(params, samples):
+def log_interim_prior(samples):
     """
     Evaluate the interim prior at one set of samples.
     This must match the prior in
@@ -131,6 +131,16 @@ def log_likelihood(params):
                           log_interim_prior(params, samples))
 
         logl = logl + loge
+
+        logw = (
+            log_conditional_prior(params, posterior_samples[i, :])
+            - log_interim_prior(posterior_samples[i, :])
+        )
+
+        ess = np.exp(2*logsumexp(logw) - logsumexp(2*logw))
+        print(i, ess)
+
+
         i += 1
 
     return logl
