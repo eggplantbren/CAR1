@@ -20,7 +20,7 @@ def prior_transform(us):
     """
     Parameters are mu, sigma, tau, jitter for each light curve
     """
-    hypers = us[0:num_hyperparameters]
+    hypers = us[0:num_hyperparameters].copy()
     hypers[0] = 0.0 + 40.0*hypers[0]         # Mu for mean magnitude
     hypers[1] = 5.0*hypers[1]                # Sigma for mean magnitude
     hypers[2] = -5.0 + 10.0*hypers[2]        # Mu for log10_beta
