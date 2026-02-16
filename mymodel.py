@@ -67,7 +67,7 @@ def log_likelihood(params):
                 this_data = data[k]["light_curve"]
                 gp.compute(this_data[:,0], yerr=np.sqrt(this_data[:,2]**2 + jitter[i, j]**2))
                 logl += gp.log_likelihood(this_data[:,1])
-            except:
+            except Exception:
                 logl += -1.0E300
             k += 1
 
