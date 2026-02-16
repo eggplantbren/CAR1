@@ -2,12 +2,12 @@ from extract_data import *
 import celerite2
 from celerite2 import terms
 import numpy as np
-from scipy.stats import t
+from scipy.stats import norm, t
 
 
 num_qsos = 190
 num_bands = 3
-num_hyperparameters = 0
+num_hyperparameters = 2
 
 data = []
 for i in range(num_qsos):
@@ -21,10 +21,14 @@ def prior_transform(us):
     Parameters are mu, sigma, tau, jitter for each light curve
     """
     hypers = us[0:num_hyperparameters]
+    hypers[0] = 0.0 + 40.0*hypers[0]         # Mu for mean magnitude
+    hypers[1] = 10.0**(-2.0 + 4.0*hypers[1]) # Sigma for mean magnitude
+
     qso_params_3d = us[num_hyperparameters:].copy()
     qso_params_3d = qso_params_3d.reshape((num_qsos, num_bands, 4))
 
-    qso_params_3d[:, :, 0] = 20.0 + 5.0*t.ppf(qso_params_3d[:, :, 0], df=4) # Mean magnitude
+    qso_params_3d[:, :, 0] = norm.ppf(qso_params_3d[:, :, 0],
+                                      loc=hypers[0], scale=hypers[1]) # Mean magnitude
     qso_params_3d[:, :, 1] = 0.0  + 5.0*t.ppf(qso_params_3d[:, :, 1], df=4) # log10_beta in magnitudes
     qso_params_3d[:, :, 2] = 0.0  + 5.0*t.ppf(qso_params_3d[:, :, 2], df=4) # log10_tau in days
     qso_params_3d[:, :, 3] = 0.0  + 5.0*t.ppf(qso_params_3d[:, :, 3], df=4) # log10_jitter in magnitudes
