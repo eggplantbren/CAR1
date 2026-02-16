@@ -7,7 +7,7 @@ from scipy.stats import norm, t
 
 num_qsos = 190
 num_bands = 3
-num_hyperparameters = 2
+num_hyperparameters = 8
 
 data = []
 for i in range(num_qsos):
@@ -22,16 +22,25 @@ def prior_transform(us):
     """
     hypers = us[0:num_hyperparameters]
     hypers[0] = 0.0 + 40.0*hypers[0]         # Mu for mean magnitude
-    hypers[1] = 10.0**(-2.0 + 4.0*hypers[1]) # Sigma for mean magnitude
+    hypers[1] = 5.0*hypers[1]                # Sigma for mean magnitude
+    hypers[2] = -5.0 + 10.0*hypers[2]        # Mu for log10_beta
+    hypers[3] = 5.0*hypers[3]                # Sigma for log10_beta
+    hypers[4] = 15.0*hypers[4]               # Mu for log10_tau
+    hypers[5] = 5.0*hypers[5]                # Sigma for log10_tau
+    hypers[6] = -5.0 + 10.0*hypers[6]        # Mu for log10_jitter
+    hypers[7] = 5.0*hypers[7]                # Sigma for log10_jitter
 
     qso_params_3d = us[num_hyperparameters:].copy()
     qso_params_3d = qso_params_3d.reshape((num_qsos, num_bands, 4))
 
     qso_params_3d[:, :, 0] = norm.ppf(qso_params_3d[:, :, 0],
                                       loc=hypers[0], scale=hypers[1]) # Mean magnitude
-    qso_params_3d[:, :, 1] = 0.0  + 5.0*t.ppf(qso_params_3d[:, :, 1], df=4) # log10_beta in magnitudes
-    qso_params_3d[:, :, 2] = 0.0  + 5.0*t.ppf(qso_params_3d[:, :, 2], df=4) # log10_tau in days
-    qso_params_3d[:, :, 3] = 0.0  + 5.0*t.ppf(qso_params_3d[:, :, 3], df=4) # log10_jitter in magnitudes
+    qso_params_3d[:, :, 1] = norm.ppf(qso_params_3d[:, :, 1],
+                                      loc=hypers[2], scale=hypers[3]) # log10_beta in magnitudes
+    qso_params_3d[:, :, 2] = norm.ppf(qso_params_3d[:, :, 2],
+                                      loc=hypers[4], scale=hypers[5]) # log10_tau in days
+    qso_params_3d[:, :, 3] = norm.ppf(qso_params_3d[:, :, 3],
+                                      loc=hypers[6], scale=hypers[7]) # log10_jitter in magnitudes
 
     return np.hstack([hypers, qso_params_3d.flatten()])
 
