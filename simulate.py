@@ -6,7 +6,7 @@ import numpy.random as rng
 
 plt.rcParams.update({
     "text.usetex": True,
-    "font.size": 14,
+    "font.size": 12,
 })
 
 rng.seed(12)
@@ -29,7 +29,7 @@ y += 20.0
 # Observed points
 t_obs = 4000 + rng.randint(1000, size=100)
 y_obs = y[t_obs]
-y_obs += sig_errorbars*rng.randn()
+y_obs += sig_errorbars*rng.randn(len(y_obs))
 
 # Save the data
 data = np.empty((t_obs.shape[0], 3))
@@ -39,17 +39,20 @@ data[:,1] = y_obs[indices]
 data[:,2] = sig_errorbars
 np.savetxt("data.txt", data)
 
-# Plot the curve
-plt.plot(t, y, "r-", alpha=0.5, label="Underlying curve")
+# Two panels in the plot
+plt.figure(figsize=(8, 8))
+plt.subplot(2, 1, 1)
+plt.errorbar(t_obs, y_obs, yerr=sig_errorbars, fmt=".", label="Observations")
 
-# Plot the data points
+plt.subplot(2, 1, 2)
+plt.plot(t, y, "r-", alpha=0.5, label="Underlying curve")
 plt.errorbar(t_obs, y_obs, yerr=sig_errorbars, fmt=".", label="Observations")
 
 plt.legend()
-plt.xlabel("Time $t$")
-plt.ylabel("Signal $y(t)$")
+plt.xlabel("Time $t$ (days)")
+plt.ylabel("Signal $y(t)$ (magnitudes)")
 
 # Save and display the plot
-plt.savefig("simulation.pdf")
+plt.savefig("simulation.pdf", bbox_inches="tight")
 plt.show()
 
