@@ -34,4 +34,5 @@ axes = np.array(figure.axes).reshape((ndim, ndim))
 for i in range(ndim):
 	ax = axes[i,i]
 
+plt.savefig("cornerplot.pdf", bbox_inches="tight")
 plt.show()
