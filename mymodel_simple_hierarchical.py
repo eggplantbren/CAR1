@@ -27,8 +27,8 @@ def prior_transform(us):
     hypers[3] = 5.0*hypers[3]                # Sigma for log10_beta
     hypers[4] = 15.0*hypers[4]               # Mu for log10_tau
     hypers[5] = 5.0*hypers[5]                # Sigma for log10_tau
-    hypers[6] = -5.0 + 10.0*hypers[6]        # Mu for log10_jitter
-    hypers[7] = 5.0*hypers[7]                # Sigma for log10_jitter
+    hypers[6] = -2.0 # -5.0 + 10.0*hypers[6]        # Mu for log10_jitter
+    hypers[7] = 1.0 # 5.0*hypers[7]                # Sigma for log10_jitter
 
     qso_params_3d = us[num_hyperparameters:].copy()
     qso_params_3d = qso_params_3d.reshape((num_qsos, num_bands, 4))
