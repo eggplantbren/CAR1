@@ -42,8 +42,8 @@ def prior_transform(us):
     sig_mag = 5.0*us[7]
     mu_log10_beta = -5.0 + 10.0*us[8]
     sig_log10_beta = 5.0*us[9]
-    mu_log10_jitter = -5.0 + 10.0*us[10]
-    sig_log10_jitter = 5.0*us[11]
+    mu_log10_jitter = -2.0 # -5.0 + 10.0*us[10]
+    sig_log10_jitter = 1.0 # 5.0*us[11]
 
 
     qso_params_3d = us[num_hyperparameters:].copy()
@@ -59,6 +59,10 @@ def prior_transform(us):
                 + beta2*(log10_lbol - mean_log10_lbol) \
                 + beta12*(log10_lambda - mean_log10_lambda)*(log10_lbol - mean_log10_lbol) \
                 + n*(log10_1plusz - mean_log10_1plusz)
+
+    # Alternative for simple hierarchical version
+    reg = beta0 + 0*(log10_lambda - mean_log10_lambda)
+
     reg = reg.reshape((190, 3))
 
     qso_params_3d[:, :, 2] = norm.ppf(qso_params_3d[:, :, 2],
