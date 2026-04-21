@@ -22,6 +22,13 @@ mean_log10_1plusz = np.mean(log10_1plusz)
 
 num_params = num_hyperparameters + 4*num_qsos*num_bands
 
+
+names = ["beta0", "beta1", "beta2", "beta12",
+         "n", "sig_log10_tau", "mu_mag", "sig_mag",
+         "mu_log10_beta", "sig_log10_beta",
+         "mu_log10_jitter", "sig_log10_jitter"]
+
+
 def prior_transform(us):
     """
     Parameters are now:

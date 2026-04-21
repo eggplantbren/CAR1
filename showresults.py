@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from mymodel import num_hyperparameters
+from mymodel import num_hyperparameters, names
 
 
 logl = np.loadtxt("sample_info.txt")[:,1]
@@ -16,4 +16,5 @@ plt.show()
 sample = np.loadtxt("sample.txt")
 for i in range(num_hyperparameters):
     plt.plot(sample[:, i])
+    plt.ylabel(names[i])
     plt.show()
