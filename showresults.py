@@ -5,9 +5,12 @@ from mymodel import num_hyperparameters, names
 
 logl = np.loadtxt("sample_info.txt")[:,1]
 plt.plot(logl)
-lower = np.sort(logl)[int(0.05*len(logl))]
-upper = logl.max()
-upper += 0.05*(upper - lower)
+subset = logl[int(0.3*len(logl)):]
+lower = np.min(subset)
+upper = np.max(subset)
+width = upper - lower
+lower -= 0.05*width
+upper += 0.05*width
 plt.ylim([lower, upper])
 plt.xlabel("Time")
 plt.ylabel("Log Likelihood")
