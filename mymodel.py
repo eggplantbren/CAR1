@@ -70,7 +70,7 @@ def prior_transform(us):
     # Alternative for simple hierarchical version
     reg = beta0 + 0*(log10_lambda - mean_log10_lambda)
 
-    reg = reg.reshape((190, 3))
+    reg = reg.reshape((num_qsos, num_bands))
 
     qso_params_3d[:, :, 2] = norm.ppf(qso_params_3d[:, :, 2],
                                       loc=reg, scale=sig_log10_tau) # log10_tau in days
