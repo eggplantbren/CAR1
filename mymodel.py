@@ -2,6 +2,7 @@ from extract_data import *
 import celerite2
 from celerite2 import terms
 import numpy as np
+import numpy.random as rng
 from scipy.stats import norm, t
 
 num_qsos = 190
@@ -27,6 +28,55 @@ names = ["beta0", "beta1", "beta2", "beta12",
          "n", "sig_log10_tau", "mu_mag", "sig_mag",
          "mu_log10_beta", "sig_log10_beta",
          "mu_log10_jitter", "sig_log10_jitter"]
+
+
+def simulate_data():
+
+    # A list for simulated data in the same format as the
+    # real data
+    simulated_data = []
+
+
+    for i in range(num_qsos):
+        for band in ["g", "r", "i"]:
+
+            # Timestamps
+            t = data[i]["light_curve"][:,0]
+            n = len(t)
+
+            # Generate a magnitude
+            mu = 20.0 + 0.5*rng.randn()        
+
+            # Generate a beta
+            beta = 10.0**(-2.0 + 0.5*rng.randn())
+
+            # Generate a tau
+            tau = 10.0**(3.5 + 0.5*rng.randn())
+
+            # Generate a jitter
+            jitter = 10.0**(-2.0 + 1.0*rng.randn())
+
+            # Compute sigma
+            sigma = beta*np.sqrt(0.5*tau)
+
+            # Construct covariance matrix
+            rows, cols = np.indices((n, n))
+            delta = np.subtract.outer(t, t)
+            C = sigma**2*np.exp(-np.abs(delta)/tau)
+            C[np.diag_indices_from(C)] += jitter**2 + data[i]["light_curve"][:,2]**2
+            L = np.linalg.cholesky(C)
+
+            # Generate light curve
+            y = mu + L @ rng.randn(n)
+            array = np.column_stack((t, y, data[i]["light_curve"][:,2]))
+
+            
+            simulated_data.append(dict(light_curve=array,
+                                       redshift=data[i]["redshift"],
+                                       log10_lambda=data[i]["log10_lambda"],
+                                       lbol=data[i]["lbol"]))
+
+    return simulated_data
 
 
 def prior_transform(us):
