@@ -36,12 +36,12 @@ def simulate_data():
     # real data
     simulated_data = []
 
-
+    k = 0
     for i in range(num_qsos):
         for band in ["g", "r", "i"]:
 
             # Timestamps
-            t = data[i]["light_curve"][:,0]
+            t = data[k]["light_curve"][:,0]
             n = len(t)
 
             # Generate a magnitude
@@ -60,24 +60,28 @@ def simulate_data():
             sigma = beta*np.sqrt(0.5*tau)
 
             # Construct covariance matrix
-            rows, cols = np.indices((n, n))
             delta = np.subtract.outer(t, t)
             C = sigma**2*np.exp(-np.abs(delta)/tau)
-            C[np.diag_indices_from(C)] += jitter**2 + data[i]["light_curve"][:,2]**2
+            C[np.diag_indices_from(C)] += jitter**2 + data[k]["light_curve"][:,2]**2
             L = np.linalg.cholesky(C)
 
             # Generate light curve
             y = mu + L @ rng.randn(n)
-            array = np.column_stack((t, y, data[i]["light_curve"][:,2]))
+            array = np.column_stack((t, y, data[k]["light_curve"][:,2]))
 
+            print(mu, beta, tau, jitter)
             
             simulated_data.append(dict(light_curve=array,
-                                       redshift=data[i]["redshift"],
-                                       log10_lambda=data[i]["log10_lambda"],
-                                       lbol=data[i]["lbol"]))
+                                       redshift=data[k]["redshift"],
+                                       log10_lambda=data[k]["log10_lambda"],
+                                       lbol=data[k]["lbol"]))
+
+            k += 1
 
     return simulated_data
 
+#rng.seed(0)
+#data = simulate_data()
 
 def prior_transform(us):
     """
