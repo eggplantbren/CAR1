@@ -19,7 +19,7 @@ plt.xlabel("Time")
 plt.ylabel("Log Likelihood")
 plt.show()
 
-sample = np.loadtxt("posterior_sample.txt")
+sample = np.atleast_2d(np.loadtxt("posterior_sample.txt"))
 for i in range(num_hyperparameters):
     plt.plot(sample[:, i])
     plt.ylabel(names[i])
