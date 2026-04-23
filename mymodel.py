@@ -86,7 +86,7 @@ def simulate_data():
 
     return simulated_data
 
-if true:
+if True:
     rng.seed(0)
     data = simulate_data()
     print("RUNNING ON FAKE DATA.")
