@@ -47,7 +47,7 @@ double MyModel::perturb(DNest4::RNG& rng)
     }
 
     set_log_likelihood();
-    return logl - old_logl;
+    return 0.0; //logl - old_logl;
 }
 
 void MyModel::set_log_likelihood()

@@ -1,3 +1,6 @@
+import dnest4
+dnest4.postprocess()
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mymodel import num_hyperparameters, names
@@ -16,7 +19,7 @@ plt.xlabel("Time")
 plt.ylabel("Log Likelihood")
 plt.show()
 
-sample = np.loadtxt("sample.txt")
+sample = np.loadtxt("posterior_sample.txt")
 for i in range(num_hyperparameters):
     plt.plot(sample[:, i])
     plt.ylabel(names[i])
