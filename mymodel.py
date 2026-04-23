@@ -5,7 +5,7 @@ import numpy as np
 import numpy.random as rng
 from scipy.stats import norm, t
 
-num_qsos = 190
+num_qsos = 5
 num_bands = 3
 num_hyperparameters = 12
 
@@ -51,7 +51,13 @@ def simulate_data():
             beta = 10.0**(-2.0 + 0.5*rng.randn())
 
             # Generate a tau
-            tau = 10.0**(3.5 + 0.5*rng.randn())
+            beta0 = 3.5
+            beta1 = 1.0
+            beta2 = 1.0
+            log10_tau = beta0 + beta1*(log10_lambda[k] - mean_log10_lambda) \
+                           + beta2*(log10_lbol[k] - mean_log10_lbol) \
+                           + 1.0*(log10_1plusz[k] - mean_log10_1plusz)
+            tau = 10.0**log10_tau
 
             # Generate a jitter
             jitter = 10.0**(-2.0 + 1.0*rng.randn())
@@ -80,8 +86,13 @@ def simulate_data():
 
     return simulated_data
 
-#rng.seed(0)
-#data = simulate_data()
+if true:
+    rng.seed(0)
+    data = simulate_data()
+    print("RUNNING ON FAKE DATA.")
+
+if num_qsos < 190:
+    print("NOT USING ALL QUASARS.")
 
 def prior_transform(us):
     """
@@ -122,7 +133,7 @@ def prior_transform(us):
                 + n*(log10_1plusz - mean_log10_1plusz)
 
     # Alternative for simple hierarchical version
-    reg = beta0 + 0*(log10_lambda - mean_log10_lambda)
+    #reg = beta0 + 0*(log10_lambda - mean_log10_lambda)
 
     reg = reg.reshape((num_qsos, num_bands))
 
