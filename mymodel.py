@@ -5,7 +5,7 @@ import numpy as np
 import numpy.random as rng
 from scipy.stats import norm, t
 
-num_qsos = 5
+num_qsos = 190
 num_bands = 3
 num_hyperparameters = 12
 
@@ -86,7 +86,7 @@ def simulate_data():
 
     return simulated_data
 
-if True:
+if False:
     rng.seed(0)
     data = simulate_data()
     print("RUNNING ON FAKE DATA.")
