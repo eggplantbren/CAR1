@@ -2,7 +2,7 @@ import celerite2
 from celerite2 import terms
 import numpy as np
 
-data = np.loadtxt("../data.txt")
+data = np.loadtxt("data.txt")
 num_params = 4
 
 def prior_transform(us):
