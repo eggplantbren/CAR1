@@ -5,6 +5,10 @@ import numpy as np
 data = np.loadtxt("data.txt")
 num_params = 4
 
+fix_mu = False
+mean_mag = np.sum(data[:,1]/data[:,2]**2) \
+            / np.sum(1.0/data[:,2]**2)
+
 def prior_transform(us):
     """
     Parameters are mu, sigma, tau, jitter for each light curve
@@ -12,6 +16,9 @@ def prior_transform(us):
 
     params = us.copy()
     params[0] = 40.0*us[0]        # mu
+    if fix_mu:
+        params[0] = mean_mag
+
     params[1] = -5.0 + 10.0*us[1] # log10_beta
     params[2] = 15.0*us[2]        # log10_tau
     params[3] = -5.0 + 10.0*us[3] # log10_jitter
