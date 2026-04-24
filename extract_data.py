@@ -2,9 +2,13 @@ import astropy
 from astropy.io import fits
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 # Open the FITS file
-fits_file = fits.open("TotalDat.fits")
+HERE = os.path.dirname(__file__)
+path = os.path.join(HERE, "TotalDat.fits")
+
+fits_file = fits.open(path)
 totaldat = fits_file[1].data
 
 def remove_outliers(data):
